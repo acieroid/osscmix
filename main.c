@@ -3,74 +3,65 @@
 
 #include <ncurses.h>
 
-struct win_t
+typedef struct s_win s_win;
+struct s_win
 {
 	int height;
 	int width;
+
+	int selected_dev;
+	int nbr_dev;		/* Number of devices */
 };
 
-struct dev_t
+typedef struct s_dev s_dev;
+struct s_dev
 {
+	int id;
 	char *name;
 
-	int level; // sound level in percent
+	int level;		/* sound level in percent */
 	bool muted;
-
-	/* Position on screen */
-	int pos_x;
-	int pos_y;
-	bool selected;
 };
 
 /* Window functions */
-struct win_t
+s_win
 init_window (void);
 
 void
 exit_window (void);
 
 void
-draw_window(struct win_t win, struct dev_t dev[], int n);
+draw_window (s_win win, s_dev *dev);
 
 void
-draw_device_level (struct win_t win, struct dev_t dev);
+draw_device (s_win win, s_dev dev);
 
 
 /* OSS functions */
-struct dev_t*
+s_dev*
 list_device (void);
 
 void
-change_device_level(struct dev_t dev);
+change_device_level(s_dev dev);
 
 int
 main (int argc, char **argv)
 {
 	int event;		/* Keyboard event */
+	int i;
 
-	int i = 0, n = 1;	/*	i : selected device
-					n : numbre of devices
-				*/
-	struct win_t window;
-	struct dev_t *device;
-
-	int j;
+	struct s_win window;
+	struct s_dev *device;
 
 	window = init_window();
 	device = list_device();
 
-	n = sizeof(*device) / sizeof(struct dev_t);
-
-	for (j = 0; j < n; j++)
-	{
-		device[j].pos_x = 0;
-		device[j].pos_y = window.height - 1;
-	}
-
 	do
 	{
-		draw_window(window, device, n);
+		draw_window(window, device);
 		
+		i = window.selected_dev;
+
 		switch (event = getch())
 		{
 			/* Sound level change */
@@ -115,27 +106,15 @@ main (int argc, char **argv)
 			
 			/* Selecting device */
 			case KEY_LEFT:
-				if (i > 0)
-				{
-					device[i].selected = FALSE;
-					i--;
-					device[i].selected = TRUE;
-				}
+				if (window.selected_dev > 0)
+					window.selected_dev--;
 				break;
 			
 			case KEY_RIGHT:
-				if (i < n - 1)
-				{
-					device[i].selected = FALSE;
-					i++;
-					device[i].selected = TRUE;
-				}
+				if (window.selected_dev < window.nbr_dev - 1)
+					window.selected_dev++;
 				break;
 		}
-		
-		/* redrawing window at each iterration */
-		draw_window(window, device, n);
-
 	} while (event != 'q' && event != 'Q');
 
 	exit_window();
@@ -143,10 +122,10 @@ main (int argc, char **argv)
 	return 0;
 }
 
-struct win_t
+s_win
 init_window (void)
 {
-	struct win_t win;
+	s_win win;
 	
 	initscr();
 	cbreak();
@@ -167,61 +146,64 @@ exit_window (void)
 }
 
 void
-draw_window(struct win_t win, struct dev_t dev[], int n)
+draw_window(s_win win, s_dev *dev)
 {
-	int i;
+	int i, n;
 
 	clear();
+	
+	n = sizeof(*dev) / sizeof(s_dev);
 
 	for (i = 0; i < n; i++)
 	{
-		move(dev[i].pos_y, dev[i].pos_x);
-		
-		if (dev[i].selected)
-			printw("%s*", dev[i].name);
-		else
-			printw("%s", dev[i].name);
-		
-		draw_device_level(win, dev[i]);
+		draw_device(win, dev[i]);
 	}
 }
 
 void
-draw_device_level (struct win_t win, struct dev_t dev)
+draw_device (s_win win, s_dev dev)
 {
 	int i;
 	int x = dev.level * (win.height - 10) / 100 + 1;
 	
+	if (dev.id == win.selected_dev)
+		printw("%s", dev.name);
+	else
+		printw("%s", dev.name);
+
+	/*
 	move(dev.pos_y - 1, dev.pos_x);
+	*/
+
 	if (dev.muted)
 		printw("%d", dev.level);
 	else
 		printw("M");
-
+	
 	for (i = 0; i < x; i++)
 	{
+		/*
 		move(dev.pos_y - 2 - i, dev.pos_x);
+		*/
 		printw("--");
 	}
 }
 
-struct dev_t*
+s_dev*
 list_device (void)
 {
-	struct dev_t *dev = malloc(sizeof(struct dev_t));
+	s_dev *dev = malloc(sizeof(s_dev));
 	
+	dev[0].id = 0;
 	dev[0].name = "MASTER";
 	dev[0].level = 70;
 	dev[0].muted = FALSE;
-	dev[0].pos_x = 0;
-	dev[0].pos_y = 0;
-	dev[0].selected = FALSE;
 
 	return dev;
 }
 
 void
-change_device_level(struct dev_t dev)
+change_device_level(s_dev dev)
 {
 	
 }
