@@ -1,5 +1,21 @@
 #include "mixer.h"
 
+void
+oss_init(void)
+{
+	char *devmixer;
+
+	if ((devmixer = getenv("OSS_MIXERDEV")) == NULL)
+		devmixer = "/dev/mixer";
+
+	if ((mixer_fd = open(devmixer, O_RDWR, 0)) == -1) {
+		perror(devmixer);
+		exit(1);
+	}
+}
+
+
+
 s_dev*
 list_device (void)
 {

@@ -12,13 +12,7 @@ main (int argc, char **argv)
 	s_win window;
 	s_dev *device;
 
-	mixer_fd = open("/dev/mixer", O_RDWR);
-	if (mixer_fd == -1)
-	{
-		fprintf(stderr,
-			"Error while opening mixer : %s", strerror(errno));
-		exit(EXIT_FAILURE);
-	}
+	oss_init();
 	
 	window = init_window();
 	device = list_device();

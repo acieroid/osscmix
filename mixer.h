@@ -1,6 +1,8 @@
 #ifndef MIXER_H
 #define MIXER_H
 
+#include <stropts.h>
+
 #include "osscmix.h"
 
 typedef struct s_dev s_dev;
@@ -13,10 +15,10 @@ struct s_dev
 	bool muted;
 };
 
-s_dev*
-list_device (void);
+int mixer_fd;
 
-void
-change_device_level (s_dev dev);
+void oss_init(void);
+s_dev* list_device (void);
+void change_device_level (s_dev dev);
 
 #endif /* MIXER_H */
