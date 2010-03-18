@@ -15,7 +15,18 @@ struct s_dev
 	bool muted;
 };
 
-int mixer_fd;
+struct s_infos
+{
+	char *version; /* OSS version */
+	char *devpath; /* the path to the mixer used, usually /dev/mixer */
+	int mixer_fd; /* the mixer file descriptor */
+
+	int n_dev; /* number of mixer devices */
+	s_dev devs[]; /* mixer devices */
+};
+
+struct s_infos infos;
+extern struct s_infos infos;
 
 void oss_init(void);
 s_dev* list_device (void);

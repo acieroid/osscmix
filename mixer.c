@@ -3,18 +3,23 @@
 void
 oss_init(void)
 {
-	char *devmixer;
+	oss_sysinfo si;
+	/* open the device */
+	if ((infos.devpath = getenv("OSS_MIXERDEV")) == NULL)
+		infos.devpath = "/dev/mixer";
 
-	if ((devmixer = getenv("OSS_MIXERDEV")) == NULL)
-		devmixer = "/dev/mixer";
-
-	if ((mixer_fd = open(devmixer, O_RDWR, 0)) == -1) {
-		perror(devmixer);
+	if ((infos.mixer_fd = open(infos.devpath, O_RDWR, 0)) == -1) {
+		perror(infos.devpath);
 		exit(1);
 	}
+
+	/* fetch some informations */
+	if (ioctl(infos.mixer_fd, SNDCTL_SYSINFO, &si) == -1) {
+		perror("SNDCTL_SYSINFO");
+		exit(1);
+	}
+	infos.n_dev = si.nummixers;
 }
-
-
 
 s_dev*
 list_device (void)
@@ -23,12 +28,9 @@ list_device (void)
 	
 	int i;
 	
-	if (ioctl(mixer_fd, SNDCTL_MIX_NREXT, &nbr_dev) == -1)
-		return NULL;
+	dev = calloc(infos.n_dev, sizeof(s_dev));
 	
-	dev = calloc(nbr_dev, sizeof(s_dev));
-	
-	for (i = 0; i < nbr_dev; i++)
+	for (i = 0; i < infos.n_dev; i++)
 	{
 		dev[i].id = i;
 		dev[i].name = "Master";

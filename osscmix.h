@@ -10,8 +10,4 @@
 #include <ncurses.h>
 #include <soundcard.h>
 
-int nbr_dev;
-
-extern int nbr_dev;
-
 #endif /* OSSCMIX_H */

@@ -32,7 +32,7 @@ draw_window(s_win win, s_dev *dev)
 	
 	clear();
 
-	for (i = 0; i < nbr_dev; i++)
+	for (i = 0; i < infos.n_dev; i++)
 	{
 		draw_device(win, dev[i], i * 10);
 	}

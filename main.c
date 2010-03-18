@@ -79,7 +79,7 @@ main (int argc, char **argv)
 				break;
 			
 			case KEY_RIGHT:
-				if (window.selected_dev < nbr_dev - 1)
+				if (window.selected_dev < infos.n_dev - 1)
 					window.selected_dev++;
 				break;
 		}
