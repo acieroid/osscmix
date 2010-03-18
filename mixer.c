@@ -3,7 +3,7 @@
 void
 oss_init(void)
 {
-	oss_sysinfo si;
+	int n, i;
 	/* open the device */
 	if ((infos.devpath = getenv("OSS_MIXERDEV")) == NULL)
 		infos.devpath = "/dev/mixer";
@@ -14,11 +14,16 @@ oss_init(void)
 	}
 
 	/* fetch some informations */
-	if (ioctl(infos.mixer_fd, SNDCTL_SYSINFO, &si) == -1) {
+	/* FIXME: handling multiple mixers */
+	/*if (ioctl(infos.mixer_fd, SNDCTL_SYSINFO, &si) == -1) {
 		perror("SNDCTL_SYSINFO");
 		exit(1);
 	}
 	infos.n_dev = si.nummixers;
+	*/
+
+	OSS_CALL(SNDCTL_MIX_NREXT, &n)
+	infos.n_dev = n;
 }
 
 s_dev*
@@ -45,4 +50,4 @@ void
 change_device_level (s_dev dev)
 {
 	return;
-}    
+}

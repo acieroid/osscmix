@@ -5,6 +5,12 @@
 
 #include "osscmix.h"
 
+#define OSS_CALL(call, arg)				\
+	if (ioctl(infos.mixer_fd, call, arg) == -1) {	\
+		perror(#call);				\
+  		exit(1); 				\
+	}
+
 typedef struct s_dev s_dev;
 struct s_dev
 {
@@ -21,8 +27,8 @@ struct s_infos
 	char *devpath; /* the path to the mixer used, usually /dev/mixer */
 	int mixer_fd; /* the mixer file descriptor */
 
-	int n_dev; /* number of mixer devices */
-	s_dev devs[]; /* mixer devices */
+	int n_dev; /* number of controls */
+	s_dev devs[]; /* controls */
 };
 
 struct s_infos infos;
