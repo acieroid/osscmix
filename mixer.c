@@ -22,8 +22,22 @@ oss_init(void)
 	infos.n_dev = si.nummixers;
 	*/
 
+	/* fill the devices in `infos' */
+	infos.n_dev = 0;
+	n = 0; /* we just handle the first mixer, for now */
 	OSS_CALL(SNDCTL_MIX_NREXT, &n)
-	infos.n_dev = n;
+	//if (ioctl(infos.mixer_fd, SNDCTL_MIX_NREXT, &n) == -1)
+	for (i = 0; i < n; i++) {
+		oss_mixext ext;
+		ext.dev = 0; /* same comment as for `n' */
+		ext.ctrl = i;
+
+		OSS_CALL(SNDCTL_MIX_EXTINFO, &ext)
+		
+		if (ext.flags &
+				(MIXF_MAINVOL | MIXF_PCMVOL | MIXF_RECVOL | MIXF_MONVOL))
+			infos.n_dev++;
+	}
 }
 
 s_dev*
