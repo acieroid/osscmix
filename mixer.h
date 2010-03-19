@@ -28,7 +28,7 @@ struct s_infos
 	int mixer_fd; /* the mixer file descriptor */
 
 	int n_dev; /* number of controls */
-	s_dev devs[]; /* controls */
+	s_dev *devs; /* controls */
 };
 
 struct s_infos infos;

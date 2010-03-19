@@ -14,19 +14,13 @@ oss_init(void)
 	}
 
 	/* fetch some informations */
-	/* FIXME: handling multiple mixers */
-	/*if (ioctl(infos.mixer_fd, SNDCTL_SYSINFO, &si) == -1) {
-		perror("SNDCTL_SYSINFO");
-		exit(1);
-	}
-	infos.n_dev = si.nummixers;
-	*/
 
 	/* fill the devices in `infos' */
 	infos.n_dev = 0;
+	/* FIXME: realloc at each iteration ? */
+	infos.devs = calloc(10, sizeof(s_dev));
 	n = 0; /* we just handle the first mixer, for now */
 	OSS_CALL(SNDCTL_MIX_NREXT, &n)
-	//if (ioctl(infos.mixer_fd, SNDCTL_MIX_NREXT, &n) == -1)
 	for (i = 0; i < n; i++) {
 		oss_mixext ext;
 		ext.dev = 0; /* same comment as for `n' */
@@ -35,29 +29,22 @@ oss_init(void)
 		OSS_CALL(SNDCTL_MIX_EXTINFO, &ext)
 		
 		if (ext.flags &
-				(MIXF_MAINVOL | MIXF_PCMVOL | MIXF_RECVOL | MIXF_MONVOL))
-			infos.n_dev++;
-	}
-}
+				(MIXF_MAINVOL | MIXF_PCMVOL | MIXF_RECVOL | MIXF_MONVOL)) {
+			infos.devs[infos.n_dev].id = infos.n_dev;
+			infos.devs[infos.n_dev].level = 0;
+			infos.devs[infos.n_dev].muted = false;
 
-s_dev*
-list_device (void)
-{
-	s_dev *dev = NULL;
-	
-	int i;
-	
-	dev = calloc(infos.n_dev, sizeof(s_dev));
-	
-	for (i = 0; i < infos.n_dev; i++)
-	{
-		dev[i].id = i;
-		dev[i].name = "Master";
-		dev[i].level = i;
-		dev[i].muted = FALSE;
+			if (ext.flags & MIXF_MAINVOL) 
+				infos.devs[infos.n_dev].name = "Main";
+			else if (ext.flags & MIXF_PCMVOL) 
+				infos.devs[infos.n_dev].name = "PCM";
+			else if (ext.flags & MIXF_RECVOL) 
+				infos.devs[infos.n_dev].name = "Record";
+			else if (ext.flags & MIXF_MONVOL) 
+				infos.devs[infos.n_dev].name = "Monitoring";
+			infos.n_dev++;
+		}
 	}
-	
-	return dev;
 }
 
 void

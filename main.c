@@ -15,7 +15,7 @@ main (int argc, char **argv)
 	oss_init();
 	
 	window = init_window();
-	device = list_device();
+	device = infos.devs;
 
 	if (device == NULL)
 	{
