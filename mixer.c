@@ -18,7 +18,7 @@ oss_init(void)
 	/* fill the devices in `infos' */
 	infos.n_dev = 0;
 	/* FIXME: realloc at each iteration ? */
-	infos.devs = calloc(10, sizeof(s_dev));
+	infos.devs = calloc(100, sizeof(s_dev));
 	n = 0; /* we just handle the first mixer, for now */
 	OSS_CALL(SNDCTL_MIX_NREXT, &n)
 	for (i = 0; i < n; i++) {
@@ -29,19 +29,21 @@ oss_init(void)
 		OSS_CALL(SNDCTL_MIX_EXTINFO, &ext)
 		
 		if (ext.flags &
-				(MIXF_MAINVOL | MIXF_PCMVOL | MIXF_RECVOL | MIXF_MONVOL)) {
+			(MIXF_MAINVOL | MIXF_PCMVOL )) {
+			oss_mixer_value val;
+			val.dev = ext.dev;
+			val.ctrl = ext.ctrl;
+			val.timestamp = ext.timestamp;
+
 			infos.devs[infos.n_dev].id = infos.n_dev;
-			infos.devs[infos.n_dev].level = 0;
 			infos.devs[infos.n_dev].muted = false;
 
-			if (ext.flags & MIXF_MAINVOL) 
-				infos.devs[infos.n_dev].name = "Main";
-			else if (ext.flags & MIXF_PCMVOL) 
-				infos.devs[infos.n_dev].name = "PCM";
-			else if (ext.flags & MIXF_RECVOL) 
-				infos.devs[infos.n_dev].name = "Record";
-			else if (ext.flags & MIXF_MONVOL) 
-				infos.devs[infos.n_dev].name = "Monitoring";
+			infos.devs[infos.n_dev].name = ext.extname;
+
+			OSS_CALL(SNDCTL_MIX_READ, &val);
+			/* FIXME: handle multiple value types */
+			infos.devs[infos.n_dev].level = val.value & 0xff;
+
 			infos.n_dev++;
 		}
 	}
