@@ -51,8 +51,7 @@ read_ctrl_infos (oss_mixext ext, int id)
 	ctrl.name = strdup(ext.extname);
 
 	OSS_CALL(SNDCTL_MIX_READ, &val);
-	/* FIXME: handle multiple value types */
-	ctrl.level = val.value & 0xff;
+	ctrl.level = val.value;
 
 	return ctrl;
 }
