@@ -48,7 +48,7 @@ read_ctrl_infos (oss_mixext ext, int id)
 
 	ctrl.id = id;
 	ctrl.muted = false;
-	ctrl.name = ext.extname;
+	ctrl.name = strdup(ext.extname);
 
 	OSS_CALL(SNDCTL_MIX_READ, &val);
 	/* FIXME: handle multiple value types */
