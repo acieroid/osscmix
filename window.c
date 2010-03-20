@@ -1,50 +1,42 @@
 #include "window.h"
 
-s_win
-init_window (void)
+void
+curses_init (void)
 {
-	s_win win;
-
 	initscr();
 	cbreak();
 	noecho();
 	curs_set(0);
 	nonl();
 	keypad(stdscr, TRUE);
-	
-	win.height = getmaxy(stdscr);
-	win.width = getmaxx(stdscr);
-	win.selected_dev = 0;
-
-	return win;
 }
 
 void
-exit_window (void)
+curses_exit()
 {
 	endwin();
 }
 
 void
-draw_window(s_win win, s_dev *dev)
+draw_window(s_win win, s_ctrl *dev)
 {
 	int i;
 	
 	clear();
 
-	for (i = 0; i < infos.n_dev; i++)
+	for (i = 0; i < infos.n_ctrl; i++)
 	{
 		draw_device(win, dev[i], i * 10);
 	}
 }
 
 void
-draw_device (s_win win, s_dev dev, int x)
+draw_device (s_win win, s_ctrl dev, int x)
 {
         int i;
 
         move(win.height - 1, x);
-        if (dev.id == win.selected_dev)
+        if (dev.id == win.selected_ctrl)
         {
                 attron(A_BOLD);
                 printw("%s", dev.name);

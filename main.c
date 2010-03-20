@@ -10,82 +10,83 @@ main (int argc, char **argv)
 	int i;
 
 	s_win window;
-	s_dev *device;
+	s_ctrl *controls;
 
 	oss_init();
-	
-	window = init_window();
-	device = infos.devs;
-
-	if (device == NULL)
+	controls = infos.ctrls;
+	if (controls == NULL)
 	{
-		fprintf(stderr,
-			"Error while listing devices : %s", strerror(errno));
+		fprintf(stderr, "Error while listing controlss");
 		exit(EXIT_FAILURE);
-	}
+	}  
+
+	curses_init();
+	window.height = getmaxy(stdscr);
+	window.width = getmaxx(stdscr);
+	window.selected_ctrl = 0;
 
 	do
 	{
-		draw_window(window, device);
-		
-		i = window.selected_dev;
+		i = window.selected_ctrl;
+
+		draw_window(window, controls);
 
 		switch (event = getch())
 		{
 			/* Sound level change */
 			case KEY_UP:
-				if (device[i].level < 100)
-					device[i].level++;
+				if (controls[i].level < 100)
+					controls[i].level++;
 				break;
 
 			case KEY_DOWN:
-				if (device[i].level > 0)
-					device[i].level--;
+				if (controls[i].level > 0)
+					controls[i].level--;
 				break;
 
 			case KEY_PPAGE:
-				if (device[i].level < 100)
+				if (controls[i].level < 100)
 				{
-					if ((device[i].level + 5) > 100)
-						device[i].level = 100;
+					if ((controls[i].level + 5) > 100)
+						controls[i].level = 100;
 					else
-						device[i].level += 5;
+						controls[i].level += 5;
 				}
 				break;
 
 			case KEY_NPAGE:
-				if (device[i].level > 0)
+				if (controls[i].level > 0)
 				{
-					if ((device[i].level - 5) < 0)
-						device[i].level = 0;
+					if ((controls[i].level - 5) < 0)
+						controls[i].level = 0;
 					else
-						device[i].level -= 5;
+						controls[i].level -= 5;
 				}
 				break;
 
 			/* Muting/unmuting */
 			case 'M':
 			case 'm':
-				if (device[i].muted)
-					device[i].muted = FALSE;
+				if (controls[i].muted)
+					controls[i].muted = FALSE;
 				else
-					device[i].muted = TRUE;
+					controls[i].muted = TRUE;
 				break;
 			
-			/* Selecting device */
+			/* Selecting controls */
 			case KEY_LEFT:
-				if (window.selected_dev > 0)
-					window.selected_dev--;
+				if (window.selected_ctrl > 0)
+					window.selected_ctrl--;
 				break;
 			
 			case KEY_RIGHT:
-				if (window.selected_dev < infos.n_dev - 1)
-					window.selected_dev++;
+				if (window.selected_ctrl < infos.n_ctrl - 1)
+					window.selected_ctrl++;
 				break;
 		}
 	} while (event != 'q' && event != 'Q');
 
-	exit_window();
+	curses_exit();
 
-	return 0;
+	return EXIT_SUCCESS;
 }

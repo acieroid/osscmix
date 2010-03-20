@@ -16,9 +16,9 @@ oss_init(void)
 	/* fetch some informations */
 
 	/* fill the devices in `infos' */
-	infos.n_dev = 0;
+	infos.n_ctrl = 0;
 	/* FIXME: realloc at each iteration ? */
-	infos.devs = calloc(100, sizeof(s_dev));
+	infos.ctrls = calloc(100, sizeof(s_ctrl));
 	n = 0; /* we just handle the first mixer, for now */
 	OSS_CALL(SNDCTL_MIX_NREXT, &n)
 	for (i = 0; i < n; i++) {
@@ -35,22 +35,21 @@ oss_init(void)
 			val.ctrl = ext.ctrl;
 			val.timestamp = ext.timestamp;
 
-			infos.devs[infos.n_dev].id = infos.n_dev;
-			infos.devs[infos.n_dev].muted = false;
-
-			infos.devs[infos.n_dev].name = ext.extname;
+			infos.ctrls[infos.n_ctrl].id = infos.n_ctrl;
+			infos.ctrls[infos.n_ctrl].muted = false;
+			infos.ctrls[infos.n_ctrl].name = ext.extname;
 
 			OSS_CALL(SNDCTL_MIX_READ, &val);
 			/* FIXME: handle multiple value types */
-			infos.devs[infos.n_dev].level = val.value & 0xff;
+			infos.ctrls[infos.n_ctrl].level = val.value & 0xff;
 
-			infos.n_dev++;
+			infos.n_ctrl++;
 		}
 	}
 }
 
 void
-change_device_level (s_dev dev)
+change_device_level (s_ctrl ctrl)
 {
 	return;
 }

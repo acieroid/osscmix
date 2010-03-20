@@ -10,19 +10,15 @@ struct s_win
 	int height;
 	int width;
 
-	int selected_dev;
+	int selected_ctrl;
 };
 
-s_win
-init_window (void);
+void curses_init (void);
 
-void
-exit_window (void);
+void curses_exit (void);
 
-void
-draw_window (s_win win, s_dev *dev);
+void draw_window (s_win win, s_ctrl *dev);
 
-void
-draw_device (s_win win, s_dev dev, int x);
+void draw_device (s_win win, s_ctrl dev, int x);
 
 #endif /* WINDOW_H */
