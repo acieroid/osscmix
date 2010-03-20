@@ -1,7 +1,7 @@
 #include "mixer.h"
 
 void
-oss_init(void)
+oss_init (void)
 {
 	int n, i;
 	/* open the device */
@@ -30,22 +30,31 @@ oss_init(void)
 		
 		if (ext.flags &
 			(MIXF_MAINVOL | MIXF_PCMVOL )) {
-			oss_mixer_value val;
-			val.dev = ext.dev;
-			val.ctrl = ext.ctrl;
-			val.timestamp = ext.timestamp;
-
-			infos.ctrls[infos.n_ctrl].id = infos.n_ctrl;
-			infos.ctrls[infos.n_ctrl].muted = false;
-			infos.ctrls[infos.n_ctrl].name = ext.extname;
-
-			OSS_CALL(SNDCTL_MIX_READ, &val);
-			/* FIXME: handle multiple value types */
-			infos.ctrls[infos.n_ctrl].level = val.value & 0xff;
-
+			infos.ctrls[infos.n_ctrl] = read_ctrl_infos(ext, infos.n_ctrl);
 			infos.n_ctrl++;
 		}
 	}
+}
+
+s_ctrl
+read_ctrl_infos (oss_mixext ext, int id)
+{
+	oss_mixer_value val;
+	s_ctrl ctrl;
+
+	val.dev = ext.dev;
+	val.ctrl = ext.ctrl;
+	val.timestamp = ext.timestamp;
+
+	ctrl.id = id;
+	ctrl.muted = false;
+	ctrl.name = ext.extname;
+
+	OSS_CALL(SNDCTL_MIX_READ, &val);
+	/* FIXME: handle multiple value types */
+	ctrl.level = val.value & 0xff;
+
+	return ctrl;
 }
 
 void

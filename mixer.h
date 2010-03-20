@@ -37,7 +37,7 @@ struct s_infos infos;
 extern struct s_infos infos;
 
 void oss_init (void);
-s_ctrl* list_device (void);
+s_ctrl read_ctrl_infos (oss_mixext ext, int id);
 void change_device_level (s_ctrl dev);
 
 #endif /* MIXER_H */
