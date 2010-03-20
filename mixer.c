@@ -47,17 +47,36 @@ read_ctrl_infos (oss_mixext ext, int id)
 	val.timestamp = ext.timestamp;
 
 	ctrl.id = id;
-	ctrl.muted = false;
+	ctrl.real_id = ext.ctrl;
+	ctrl.type = ext.type;
+	ctrl.muted = false; /* FIXME */
 	ctrl.name = strdup(ext.extname);
 
 	OSS_CALL(SNDCTL_MIX_READ, &val);
-	ctrl.level = val.value;
+	ctrl.level = val.value % 100;
 
 	return ctrl;
 }
 
 void
-change_device_level (s_ctrl ctrl)
+change_ctrl_level (s_ctrl ctrl, int value)
 {
-	return;
+	oss_mixext ext;
+	oss_mixer_value val;
+
+	ext.dev = 0;
+	ext.ctrl = ctrl.real_id;
+
+	OSS_CALL(SNDCTL_MIX_EXTINFO, &ext)
+
+	/* if we can't change the value, we just do nothing */
+	if (!(ext.flags & MIXF_WRITEABLE))
+		return;
+
+	val.value = value;
+	val.dev = ext.dev;
+	val.ctrl = ext.ctrl;
+	val.timestamp = ext.timestamp;
+
+	OSS_CALL(SNDCTL_MIX_WRITE, &val);
 }

@@ -15,6 +15,7 @@ typedef struct s_ctrl s_ctrl;
 struct s_ctrl
 {
 	int id;
+	int real_id;	/* the id in OSS's internals */
 	char *name;
 	
 	int type;	/* control type */
@@ -25,12 +26,12 @@ struct s_ctrl
 
 struct s_infos
 {
-	char *version; /* OSS version */
-	char *devpath; /* the path to the mixer used, usually /dev/mixer */
-	int mixer_fd; /* the mixer file descriptor */
+	char *version; 	/* OSS version */
+	char *devpath; 	/* the path to the mixer used, usually /dev/mixer */
+	int mixer_fd; 	/* the mixer file descriptor */
 
-	int n_ctrl; /* number of controls */
-	s_ctrl *ctrls; /* controls */
+	int n_ctrl; 	/* number of controls */
+	s_ctrl *ctrls; 	/* controls */
 };
 
 struct s_infos infos;
@@ -38,6 +39,6 @@ extern struct s_infos infos;
 
 void oss_init (void);
 s_ctrl read_ctrl_infos (oss_mixext ext, int id);
-void change_device_level (s_ctrl dev);
+void change_ctrl_level (s_ctrl ctrl, int value);
 
 #endif /* MIXER_H */
