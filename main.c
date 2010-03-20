@@ -16,7 +16,7 @@ main (int argc, char **argv)
 	controls = infos.ctrls;
 	if (controls == NULL)
 	{
-		fprintf(stderr, "Error while listing controlss");
+		fprintf(stderr, "Error while listing controls");
 		exit(EXIT_FAILURE);
 	}  
 
