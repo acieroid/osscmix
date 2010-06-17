@@ -8,7 +8,7 @@
 #define OSS_CALL(call, arg)				\
 	if (ioctl(infos.mixer_fd, call, arg) == -1) {	\
 		perror(#call);				\
-  		exit(1); 				\
+ 		exit(1); 				\
 	}
 
 typedef struct s_ctrl s_ctrl;
@@ -37,7 +37,8 @@ struct s_infos infos;
 extern struct s_infos infos;
 
 void oss_init (void);
+void oss_close (void);
 s_ctrl read_ctrl_infos (oss_mixext ext, int id);
-void change_device_level (s_ctrl dev);
+void update_device (s_ctrl dev);
 
 #endif /* MIXER_H */

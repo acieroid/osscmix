@@ -36,6 +36,12 @@ oss_init (void)
 	}
 }
 
+void
+oss_close (void)
+{
+	close(infos.mixer_fd);
+}
+
 s_ctrl
 read_ctrl_infos (oss_mixext ext, int id)
 {
@@ -58,7 +64,7 @@ read_ctrl_infos (oss_mixext ext, int id)
 }
 
 void
-change_device_level (s_ctrl ctrl)
+update_device (s_ctrl ctrl)
 {
 	return;
 }
