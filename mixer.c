@@ -81,7 +81,7 @@ read_ctrl_infos (oss_mixext ext, int id)
 			break;
 		default:
 			ctrl.stereo = FALSE;
-			ctrl.max_value = 0;
+			ctrl.max_value = 1;
 			ctrl.left_val = 0;
 	}
 	
