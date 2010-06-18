@@ -98,24 +98,43 @@ read_ctrl_infos (oss_mixext ext, int id)
 }
 
 void
-change_ctrl_level (s_ctrl ctrl, int value)
+update_ctrl (s_ctrl ctrl)
 {
 	oss_mixext ext;
 	oss_mixer_value val;
+	int left, right;
+
+	left = ctrl.left_val;
+	right = ctrl.right_val;
 
 	ext.dev = 0;
 	ext.ctrl = ctrl.real_id;
 
 	OSS_CALL(SNDCTL_MIX_EXTINFO, &ext)
 
-	/* if we can't change the value, we just do nothing */
+	/* if we can't change the values, we just do nothing */
 	if (!(ext.flags & MIXF_WRITEABLE))
 		return;
 
-	val.value = value;
 	val.dev = ext.dev;
 	val.ctrl = ext.ctrl;
 	val.timestamp = ext.timestamp;
-
+	switch (ext.type) {
+		case MIXT_STEREOSLIDER16:
+		case MIXT_MONOSLIDER16:
+			if (left > 0xffff) left = 0xffff;
+			if (right > 0xffff) right = 0xffff;
+			val.value = (left & 0xffff) | ((right & 0xffff) << 16);
+			break;
+		case MIXT_MONOSLIDER:
+		case MIXT_SLIDER:
+			val.value = left;
+			break;
+		default:
+			if (left > 255) left = 255;
+			if (right > 255) right = 255;
+			val.value = (left & 255) | ((right & 255) << 8);
+			break;
+	}
 	OSS_CALL(SNDCTL_MIX_WRITE, &val);
 }

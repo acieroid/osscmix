@@ -47,6 +47,6 @@ extern struct s_infos infos;
 void oss_init (void);
 void oss_close (void);
 s_ctrl read_ctrl_infos (oss_mixext ext, int id);
-void change_ctrl_level (s_ctrl ctrl, int value);
+void update_ctrl (s_ctrl ctrl);
 
 #endif /* MIXER_H */
