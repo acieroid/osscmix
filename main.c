@@ -87,6 +87,7 @@ main (int argc, char **argv)
 	} while (event != 'q' && event != 'Q');
 
 	curses_exit();
+	oss_close();
 
 	return EXIT_SUCCESS;
 }

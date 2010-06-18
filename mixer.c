@@ -36,6 +36,12 @@ oss_init (void)
 	}
 }
 
+void
+oss_close (void)
+{
+	close(infos.mixer_fd);
+}
+
 s_ctrl
 read_ctrl_infos (oss_mixext ext, int id)
 {
