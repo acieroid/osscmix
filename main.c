@@ -18,7 +18,7 @@ main (int argc, char **argv)
 	{
 		fprintf(stderr, "Error while listing controls");
 		exit(EXIT_FAILURE);
-	}  
+	}
 
 	curses_init();
 	window.height = getmaxy(stdscr);
@@ -35,32 +35,36 @@ main (int argc, char **argv)
 		{
 			/* Sound level change */
 			case KEY_UP:
-				if (controls[i].level < 100)
-					controls[i].level++;
+				if (controls[i].left_val <
+						controls[i].max_value)
+					controls[i].left_val++;
 				break;
 
 			case KEY_DOWN:
-				if (controls[i].level > 0)
-					controls[i].level--;
+				if (controls[i].left_val > 0)
+					controls[i].left_val--;
 				break;
 
 			case KEY_PPAGE:
-				if (controls[i].level < 100)
+				if (controls[i].left_val <
+						controls[i].max_value)
 				{
-					if ((controls[i].level + 5) > 100)
-						controls[i].level = 100;
+					if ((controls[i].left_val + 5) >
+							controls[i].max_value)
+						controls[i].left_val =
+							controls[i].max_value;
 					else
-						controls[i].level += 5;
+						controls[i].left_val += 5;
 				}
 				break;
 
 			case KEY_NPAGE:
-				if (controls[i].level > 0)
+				if (controls[i].left_val > 0)
 				{
-					if ((controls[i].level - 5) < 0)
-						controls[i].level = 0;
+					if ((controls[i].left_val - 5) < 0)
+						controls[i].left_val = 0;
 					else
-						controls[i].level -= 5;
+						controls[i].left_val -= 5;
 				}
 				break;
 

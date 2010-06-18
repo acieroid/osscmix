@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O2
+CFLAGS = -Wall -O2 -g
 LDFLAGS = -lncurses
 
 INCLUDES = -I/usr/lib/oss/include/sys

@@ -11,6 +11,8 @@
  		exit(1); 				\
 	}
 
+enum units { CENTIBEL, DECIBEL, HZ };
+
 typedef struct s_ctrl s_ctrl;
 struct s_ctrl
 {
@@ -19,9 +21,14 @@ struct s_ctrl
 	char *name;
 	
 	int type;	/* control type */
+	int units_type; /* the units of the control */
 
-	int level;	/* sound level in percent */
+	int max_value;	/* the maximal value the control can have */
+	int left_val;	/* left value, also used if there's only one value */
+	int right_val;	/* right value */
+
 	bool muted;
+	bool stereo;
 };
 
 struct s_infos

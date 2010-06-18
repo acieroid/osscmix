@@ -47,6 +47,7 @@ read_ctrl_infos (oss_mixext ext, int id)
 {
 	oss_mixer_value val;
 	s_ctrl ctrl;
+	int mask = 0xff, shift = 8;
 
 	val.dev = ext.dev;
 	val.ctrl = ext.ctrl;
@@ -55,12 +56,35 @@ read_ctrl_infos (oss_mixext ext, int id)
 	ctrl.id = id;
 	ctrl.real_id = ext.ctrl;
 	ctrl.type = ext.type;
-	ctrl.muted = false; /* FIXME */
+
+	/* FIXME: you *can't* mute a ctrl which is not a MIXT_MUTE */
+	ctrl.muted = false; 
 	ctrl.name = strdup(ext.extname);
 
 	OSS_CALL(SNDCTL_MIX_READ, &val);
-	ctrl.level = val.value % 100;
 
+	if (ext.flags & MIXF_DECIBEL)
+		ctrl.units_type = DECIBEL;
+	else if (ext.flags & MIXF_CENTIBEL)
+		ctrl.units_type = CENTIBEL;
+	else if (ext.flags & MIXF_HZ)
+		ctrl.units_type = HZ;
+
+	switch (ext.type) {
+		case MIXT_STEREOSLIDER16:
+			shift = 16; mask = 0xffff;
+		case MIXT_STEREOSLIDER:
+			ctrl.stereo = TRUE;
+			ctrl.max_value = ext.maxvalue;
+			ctrl.left_val = val.value & mask;
+			ctrl.right_val = (val.value >> shift) & mask;
+			break;
+		default:
+			ctrl.stereo = FALSE;
+			ctrl.max_value = 0;
+			ctrl.left_val = 0;
+	}
+	
 	return ctrl;
 }
 
