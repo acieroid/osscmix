@@ -79,6 +79,15 @@ read_ctrl_infos (oss_mixext ext, int id)
 			ctrl.left_val = val.value & mask;
 			ctrl.right_val = (val.value >> shift) & mask;
 			break;
+		case MIXT_SLIDER:
+			mask = ~0;
+		case MIXT_MONOSLIDER16:
+			mask = 0xffff;
+		case MIXT_MONOSLIDER:
+		case MIXT_MONODB:
+			ctrl.stereo = FALSE;
+			ctrl.max_value = ext.maxvalue;
+			ctrl.left_val = val.value & mask;
 		default:
 			ctrl.stereo = FALSE;
 			ctrl.max_value = 1;
