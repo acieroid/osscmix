@@ -7,7 +7,7 @@ int
 main (int argc, char **argv)
 {
 	int event;		/* Keyboard event */
-	int i;
+	int i, j;
 
 	s_win window;
 	s_ctrl *controls;
@@ -27,6 +27,10 @@ main (int argc, char **argv)
 
 	do
 	{
+		/* update the controls values */
+		for (j = 0; j < infos.n_ctrl; j++)
+			get_values(&controls[j]);
+
 		i = window.selected_ctrl;
 
 		draw_window(window, controls);
@@ -35,43 +39,19 @@ main (int argc, char **argv)
 		{
 			/* Sound level change */
 			case KEY_UP:
-				if (controls[i].left_val <
-						controls[i].max_value) {
-					controls[i].left_val++;
-					update_ctrl(controls[i]);
-				}
+				change_values(&controls[i], 1, 1);
 				break;
 
 			case KEY_DOWN:
-				if (controls[i].left_val > 0) {
-					controls[i].left_val--;
-					update_ctrl(controls[i]);
-				}
+				change_values(&controls[i], -1, -1);
 				break;
 
 			case KEY_PPAGE:
-				if (controls[i].left_val <
-						controls[i].max_value)
-				{
-					if ((controls[i].left_val + 5) >
-							controls[i].max_value)
-						controls[i].left_val =
-							controls[i].max_value;
-					else
-						controls[i].left_val += 5;
-					update_ctrl(controls[i]);
-				}
+				change_values(&controls[i], 5, 5);
 				break;
 
 			case KEY_NPAGE:
-				if (controls[i].left_val > 0)
-				{
-					if ((controls[i].left_val - 5) < 0)
-						controls[i].left_val = 0;
-					else
-						controls[i].left_val -= 5;
-					update_ctrl(controls[i]);
-				}
+				change_values(&controls[i], -5, -5);
 				break;
 
 			/* Muting/unmuting */

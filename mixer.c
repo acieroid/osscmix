@@ -45,23 +45,16 @@ oss_close (void)
 s_ctrl
 read_ctrl_infos (oss_mixext ext, int id)
 {
-	oss_mixer_value val;
 	s_ctrl ctrl;
-	int mask = 0xff, shift = 8;
-
-	val.dev = ext.dev;
-	val.ctrl = ext.ctrl;
-	val.timestamp = ext.timestamp;
 
 	ctrl.id = id;
 	ctrl.real_id = ext.ctrl;
+	ctrl.dev = ext.dev;
+	ctrl.timestamp = ext.timestamp;
 	ctrl.type = ext.type;
-
-	/* FIXME: you *can't* mute a ctrl which is not a MIXT_MUTE */
-	ctrl.muted = false; 
 	ctrl.name = strdup(ext.extname);
-
-	OSS_CALL(SNDCTL_MIX_READ, &val);
+	ctrl.max_value = ext.maxvalue;
+	ctrl.min_value = ext.minvalue;
 
 	if (ext.flags & MIXF_DECIBEL)
 		ctrl.units_type = DECIBEL;
@@ -70,14 +63,32 @@ read_ctrl_infos (oss_mixext ext, int id)
 	else if (ext.flags & MIXF_HZ)
 		ctrl.units_type = HZ;
 
-	switch (ext.type) {
+	get_values(&ctrl);
+
+	return ctrl;
+}
+
+void
+get_values (s_ctrl *ctrl)
+{
+	oss_mixer_value val;
+	int mask = 0xff, shift = 8;
+
+	val.dev = ctrl->dev;
+	val.ctrl = ctrl->real_id;
+	val.timestamp = ctrl->timestamp;
+	OSS_CALL(SNDCTL_MIX_READ, &val);
+
+	/* FIXME: you *can't* mute a ctrl which is not a MIXT_MUTE */
+	ctrl->muted = false;
+
+	switch (ctrl->type) {
 		case MIXT_STEREOSLIDER16:
 			shift = 16; mask = 0xffff;
 		case MIXT_STEREOSLIDER:
-			ctrl.stereo = TRUE;
-			ctrl.max_value = ext.maxvalue;
-			ctrl.left_val = val.value & mask;
-			ctrl.right_val = (val.value >> shift) & mask;
+			ctrl->stereo = TRUE;
+			ctrl->left_val = val.value & mask;
+			ctrl->right_val = (val.value >> shift) & mask;
 			break;
 		case MIXT_SLIDER:
 			mask = ~0;
@@ -85,16 +96,13 @@ read_ctrl_infos (oss_mixext ext, int id)
 			mask = 0xffff;
 		case MIXT_MONOSLIDER:
 		case MIXT_MONODB:
-			ctrl.stereo = FALSE;
-			ctrl.max_value = ext.maxvalue;
-			ctrl.left_val = val.value & mask;
+			ctrl->stereo = FALSE;
+			ctrl->left_val = val.value & mask;
 		default:
-			ctrl.stereo = FALSE;
-			ctrl.max_value = 1;
-			ctrl.left_val = 0;
+			ctrl->stereo = FALSE;
+			ctrl->max_value = 1;
+			ctrl->left_val = 0;
 	}
-	
-	return ctrl;
 }
 
 void
@@ -137,4 +145,22 @@ update_ctrl (s_ctrl ctrl)
 			break;
 	}
 	OSS_CALL(SNDCTL_MIX_WRITE, &val);
+}
+
+void
+change_values (s_ctrl *ctrl, int left, int right)
+{
+	ctrl->left_val += left;
+	if (ctrl->left_val < ctrl->min_value)
+		ctrl->left_val = ctrl->min_value;
+	else if (ctrl->left_val > ctrl->max_value)
+		ctrl->left_val = ctrl->max_value;
+
+	ctrl->right_val += right;
+	if (ctrl->right_val < ctrl->min_value)
+		ctrl->right_val = ctrl->min_value;
+	else if (ctrl->right_val > ctrl->max_value)
+		ctrl->right_val = ctrl->max_value;
+
+	update_ctrl(*ctrl);
 }
