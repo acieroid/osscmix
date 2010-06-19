@@ -9,6 +9,7 @@ curses_init (void)
 	curs_set(0);
 	nonl();
 	keypad(stdscr, TRUE);
+	timeout(0);
 }
 
 void

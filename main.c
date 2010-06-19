@@ -27,10 +27,6 @@ main (int argc, char **argv)
 
 	do
 	{
-		/* update the controls values */
-		for (j = 0; j < infos.n_ctrl; j++)
-			get_values(&controls[j]);
-
 		i = window.selected_ctrl;
 
 		draw_window(window, controls);
@@ -72,6 +68,11 @@ main (int argc, char **argv)
 			case KEY_RIGHT:
 				if (window.selected_ctrl < infos.n_ctrl - 1)
 					window.selected_ctrl++;
+				break;
+			case ERR:
+				/* update the controls values */
+				for (j = 0; j < infos.n_ctrl; j++)
+					get_values(&controls[j]);
 				break;
 		}
 	} while (event != 'q' && event != 'Q');
